@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba Desis</title>
+</head>
+<body>
+    <h1>FORMULARIO DE VOTACIÓN:</h1>
+    <br>
+    <br>
+    <div>
+        <form role="form" method="post" action="getRegionesComunasCandidatos.php" enctype="multipart/form-data" onsubmit="return guardar();">
+            <table>
+                <thead></thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <label for="nombre">Nombre y Apellido</label></td>
+                        <td>
+                            <input type="text"  id="nombre" placeholder="Nombre y Apellido" size="80" maxlength="80" name="nombre" required="required"></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="alias"> Alias</label>
+                        <td>
+                            <input type="text"  id="alias" placeholder="Alias" size="80" maxlength="80" name="alias" required="required" minlength="5" onkeypress="return soloLetrasNumeros(event)" onblur="limpia()">
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="rut"> RUT</label>
+                        <td>
+                            <input type="text"  id="rut" placeholder="Rut" size="80" maxlength="80" name="rut" required="required" onkeyup="formatear(this)" onblur="checkRut(this,'Votante')">
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="email"> Email</label>
+                        <td>
+                            <input type="email"  id="email" placeholder="Email" size="80" maxlength="80" name="email" required="required">
+                    </tr>
+                    <tr class="selector-region">
+                        <td>
+                            <label for="region">Region</label>
+                        <td>
+                            <select id="region" name="region"  onChange="cargar_comuna(this.value)">
+                                <option value="0">Seleccionar Región</option>
+                            </select>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="comuna">Comuna</label>
+                        <td>
+                            <select id="comuna" name="comuna"  >
+                                <option value="0">Seleccionar Comuna</option>
+                            </select>
+                    </tr>
+                    <tr class="selector-candidato">
+                        <td>
+                            <label for="candidato">Candidato</label>
+                        <td>
+                            <select id="candidato" name="candidato"  >
+                                <option value="0">Seleccionar Candidato</option>
+                            </select>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="como">Como se enteró de Nosotros</label>
+                        <td>
+                            <input type="checkbox" name="web" value="web" id="web" /> Web
+                <input type="checkbox" name="tv" value="tv" id="tv"/> Tv
+                <input type="checkbox" name="redes" value="redes" id="redes"/> Redes Sociales
+                <input type="checkbox" name="amigos" value="amigos" id="amigos" /> Amigos
+                    </tr>
+                </tbody>
+            </table>
+           <button type="submit" >Votar</button>
+        </form>
+    </div>
+
+    
+</body>
+</html>
+<script src="https://code.jquery.com/jquery-3.2.1.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script language="javascript">
+    $(document).ready(function() {
+                    $.ajax({
+                            type: "POST",
+                            url: "getRegionesComunasCandidatos.php?tipo=region",
+                            success: function(response)
+                            {
+                                $('.selector-region select').html(response).fadeIn();
+                            }
+                    });
+                    $.ajax({
+                            type: "POST",
+                            url: "getRegionesComunasCandidatos.php?tipo=candidato",
+                            success: function(response)
+                            {
+                                $('.selector-candidato select').html(response).fadeIn();
+                            }
+                    });
+
+                });
+
+    function cargar_comuna(valor) {
+
+        $.ajax({
+            method: "POST",
+            url: "getRegionesComunasCandidatos.php?tipo=comuna&valor="+ valor,
+            success: function (data) {
+                $("#comuna").html(data);
+                
+            }
+        });
+
+    }
+    function limpia() {
+        var val = document.getElementById("alias").value;
+        var tam = val.length;
+        const letras = ['á','é','í','ó','ú','a','b','c','d','e','f','g','h','i','j','k','l','m','n','ñ','o','p','q','r','s','t','u','v','w','x','y','z','0','1','2','3','4','5','6','7','8','9','Á','É','Í','Ó','Ú','A','B','C','D','E','F','G','H','I','J','K','L','M','N','Ñ','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
+        for(i = 0; i < tam; i++) {
+            if(!letras.includes(val[i]))
+                document.getElementById("alias").value = '';
+        }
+    }
+
+    function soloLetrasNumeros(evt) {
+        evt = (evt) ? evt : event;
+        var charCode = (evt.charCode) ? evt.charCode : ((evt.keyCode) ? evt.keyCode :
+                ((evt.which) ? evt.which : 0));
+        if (charCode > 32 && (charCode < 48 || charCode > 90) && (charCode < 97 || charCode > 122) && (charCode <= 192 || charCode >= 255))
+        {
+
+            return false;
+        }
+        
+        return true;
+
+    }
+    function formatear(rut){
+        rut.value=cliente.rut.replace(/[.-]/g, '').replace( /^(\d{1,2})(\d{3})(\d{3})(\w{1})$/, '$1.$2.$3-$4');
+    }function checkRut(rut,titulo) {
+        // Despejar Puntos
+        var valor = rut.value.replace('.','');
+        // Despejar Guión
+        valor = valor.replace('-','');
+        valor = valor.replace('.','');
+        // Aislar Cuerpo y Dígito Verificador
+        cuerpo = valor.slice(0,-1);
+        dv = valor.slice(-1).toUpperCase();
+        cuerpo = cuerpo.replace('.','');
+        // Formatear RUN
+        rut.value = cuerpo + '-'+ dv        
+        // Si no cumple con el mínimo ej. (n.nnn.nnn)
+        if(cuerpo.length < 7) { 
+            alert("RUT Incompleto "+titulo+". Si no posee RUT, agregar 11.111.111-1.");
+            rut.value = '' ;       
+            return false;
+        }
+        // Calcular Dígito Verificador
+        suma = 0;
+        multiplo = 2;
+        // Para cada dígito del Cuerpo
+        for(i=1;i<=cuerpo.length;i++) {
+            // Obtener su Producto con el Múltiplo Correspondiente
+            index = multiplo * valor.charAt(cuerpo.length - i);
+            // Sumar al Contador General
+            suma = suma + index;            
+            // Consolidar Múltiplo dentro del rango [2,7]
+            if(multiplo < 7) {
+                 multiplo = multiplo + 1;
+            } else {
+                 multiplo = 2;
+            }
+        }
+        // Calcular Dígito Verificador en base al Módulo 11
+        dvEsperado = 11 - (suma % 11);
+        // Casos Especiales (0 y K)
+        dv = (dv == 'K')?10:dv;
+        dv = (dv == 0)?11:dv;
+        // Validar que el Cuerpo coincide con su Dígito Verificador
+        if(dvEsperado != dv) {
+            alert("RUT Inválido "+titulo+". Si no posee RUT, agregar 11.111.111-1.");
+            rut.value = '';
+            return false; 
+        }
+        if (!verificaRut1(rut.value)) { 
+            alert("RUT Inválido "+titulo+". Si no posee RUT, agregar 11.111.111-1."); 
+            rut.value = '';
+            return false; 
+        }
+        return true;
+}
+function votos(rut){
+    var mensaje;
+    $.ajax({
+            method: "POST",
+            async: false,
+            url: "getRegionesComunasCandidatos.php?tipo=voto&rut="+ rut,
+            success: function (data) {
+                if(data=='1'){
+                   mensaje = true;
+                }else{
+                    mensaje= false;
+                }
+                
+            }
+        });
+        return  mensaje;
+}
+function guardar() {
+    var checkOE = 0;
+    var valor = $("#rut").val();  
+    if (document.getElementById('web').checked) {
+            checkOE = checkOE + 1;
+        }
+    if (document.getElementById('tv').checked) {
+            checkOE = checkOE + 1;
+        }
+    if (document.getElementById('redes').checked) {
+            checkOE = checkOE + 1;
+        }
+    if (document.getElementById('amigos').checked) {
+            checkOE = checkOE + 1;
+        }        
+        if($("#region option:selected").val() == 0) {
+        alert("Debe Seleccionar una Región");
+        return false;
+    }  
+    if($("#comuna option:selected").val() == 0) {
+        alert("Debe Seleccionar una Comuna");
+        return false;
+    }  
+    if($("#candidato option:selected").val() == 0) {
+        alert("Debe Seleccionar un candidato");
+        return false;
+    }
+    if(checkOE < 2){
+        alert('Debes seleccionar al menos 2 de las formas de Como se enteró de Nosotros');
+        return false;       
+    }
+    if(votos(valor)){
+        alert('el votante rut '+valor+ ' ya ha votado');
+        return false;
+    }
+    
+
+    return true;
+}
+
+
+</script>

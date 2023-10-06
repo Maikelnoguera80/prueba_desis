@@ -1,0 +1,7 @@
+PHP: 7.4
+MySql: 5.7
+Pasos:
+1.- se debe correr el script de bd en el manejador de bases de datos ubicado en la carpeta bd el cual crearia la bd desis
+2.- se debe crear la carpeta prueba_desis  
+3.- se debe copiar todos los archivos en la carpeta creada.
+4.- llamar a la url http://localhost:90/prueba_desis/ para poder ejecutarlo.
